@@ -1,7 +1,8 @@
 **Title:** Spatiotemporal single-cell RNA sequencing of chick hearts identifies novel stage-specific regulatory programs that govern cardiac development.
 
 **Author:** Madhav Mantri (mm2937@cornell.edu)
-Link to preprint: 
+
+**Citation:** Link to preprint 
 
 **Contents:** This repository contains processed data and scripts required to analyse spatially resolved RNA-seq with high-throughput time course scRNA-seq to study the spatiotemporal interactions and regulatory programs that drive fetal development of the chicken hearts. The sequencing data needed for this analysis have been deposited in NCBI's Gene Expression Omnibus and are accessible through GEO Series accession number [GSE149457](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE149457).
 
