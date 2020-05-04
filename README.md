@@ -1,4 +1,4 @@
-**Title:** Spatiotemporal single-cell RNA sequencing of chick hearts identifies novel stage-specific regulatory programs that govern cardiac development.
+**Title:** Spatiotemporal single-cell RNA sequencing of developing hearts reveals interplay between cellular differentiation and morphogenesis.
 
 **Author:** Madhav Mantri (mm2937@cornell.edu)
 
