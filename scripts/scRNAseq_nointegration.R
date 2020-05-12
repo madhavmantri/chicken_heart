@@ -50,7 +50,9 @@ FeatureScatter(object = chicken, feature1 = "nCount_RNA", feature2 = "nFeature_R
 FeatureScatter(object = chicken, feature1 = "nFeature_RNA", feature2 = "percent.mito", do.return=TRUE) + geom_hline(yintercept = 20) + geom_vline(xintercept = 200)
 
 # Filter out cells with few reads and few genes.
-chicken <- subset(chicken, subset = nFeature_RNA >= 200 & percent.mito <= 30)
+chicken <- subset(chicken, subset = nFeature_RNA >= 200 & percent.mito <= 20)
+dim(chicken)
+
 # Assign cell cycle score
 chicken <- CellCycleScoring(object = chicken, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes)
 
@@ -77,6 +79,9 @@ DimPlot(chicken, reduction = "umap", group.by = "orig.ident")
 # save(chicken, file="robjs/chicken_raw.Robj")
 # load(here("robjs", "chicken_raw.Robj"))
 
+min(chicken$nCount_RNA)
+min(chicken$nFeature_RNA)
+
 ################### This part includes SC Tranform based normalisation (optional) #######################
 
 # Normalise using SC Transform method in Seurat v-3 
@@ -102,4 +107,4 @@ DimPlot(chicken, reduction = "SCT_umap", label = TRUE, group.by = "SCT_graph_res
 DimPlot(chicken, reduction = "SCT_umap", group.by = "orig.ident")
 
 # save(chicken, file="robjs/chicken_raw_SCT.Robj")
-load(here("robjs", "chicken_raw_SCT.Robj"))
+# load(here("robjs", "chicken_raw_SCT.Robj"))
