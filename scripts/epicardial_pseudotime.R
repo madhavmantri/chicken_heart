@@ -121,9 +121,10 @@ DimPlot(epicardial, reduction = "umap_scanorama_data", label = TRUE)
 DimPlot(object = epicardial, reduction = "umap_scanorama_data", group.by = "orig.ident") 
 DimPlot(object = epicardial, reduction = "umap_scanorama_data", group.by = "Phase")
 
-# save(epicardial, file="robjs/epicardial.Robj")
-# load("robjs/epicardial.Robj")
-
+# Merge mature fibroblasts in one and remove small moise clusters
+epicardial <- RenameIdents(epicardial, '1' = "0", '2' = "0")
+DimPlot(epicardial, reduction = "umap_scanorama_data")
+epicardial <- SubsetData(epicardial, ident.remove = c("7", "8", "9"))
 
 # Run PHATE
 data <- t(GetAssayData(epicardial, assay = "scanorama_data", slot = "data"))
@@ -136,8 +137,8 @@ tree_chicken <- phate(data, gamma = 1)
 epicardial@reductions[["scanorama_phate_gamma1"]] <- CreateDimReducObject(embeddings = tree_chicken$embedding, assay = "scanorama", key = "PHATE")
 DimPlot(epicardial, reduction = "scanorama_phate_gamma1", group.by = "orig.ident") 
 
-# save(epicardial, file="robjs/epicardial1.Robj")
-load("robjs/epicardial1.Robj")
+# save(epicardial, file="robjs/epicardial.Robj")
+load("robjs/epicardial.Robj")
 
 DefaultAssay(epicardial) <- "RNA"
 markers.epicardial.RNA <- FindAllMarkers(epicardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.1, only.pos = T, do.print = TRUE)

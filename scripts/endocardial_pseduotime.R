@@ -117,9 +117,6 @@ DimPlot(endocardial, reduction = "umap_scanorama_data", label = TRUE)
 DimPlot(object = endocardial, reduction = "umap_scanorama_data", group.by = "orig.ident") 
 DimPlot(object = endocardial, reduction = "umap_scanorama_data", group.by = "Phase")
 
-# save(endocardial, file="robjs/endocardial.Robj")
-# load("robjs/endocardial.Robj")
-
 # Run 
 data <- t(GetAssayData(endocardial, assay = "scanorama_data", slot = "data"))
 tree_chicken <- phate(data, gamma = 0)
@@ -131,8 +128,8 @@ tree_chicken <- phate(data, gamma = 1)
 endocardial@reductions[["scanorama_phate_gamma1"]] <- CreateDimReducObject(embeddings = tree_chicken$embedding, assay = "scanorama", key = "PHATE")
 DimPlot(endocardial, reduction = "scanorama_phate_gamma1", group.by = "orig.ident") 
 
-# save(endocardial, file="robjs/endocardial1.Robj")
-load("robjs/endocardial1.Robj")
+# save(endocardial, file="robjs/endocardial.Robj")
+load("robjs/endocardial.Robj")
 
 DefaultAssay(endocardial) <- "RNA"
 markers.endocardial.RNA <- FindAllMarkers(endocardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.1, only.pos = T, do.print = TRUE)
