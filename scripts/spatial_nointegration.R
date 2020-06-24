@@ -37,7 +37,6 @@ day14_visium <- prepare_datasets("D14-D1", "D14", cc.genes, mito_genes)
 # save.image("robjs/all.visiums.4.RData")
 # load("robjs/all.visiums.4.RData")
 
-
 day4_h1 = prepare_datasets(samples[1], "D4-H1", cc.genes, mito_genes)
 day4_h2 = prepare_datasets(samples[2], "D4-H2", cc.genes, mito_genes)
 day4_h3 = prepare_datasets(samples[3], "D4-H3", cc.genes, mito_genes)
@@ -72,6 +71,9 @@ chicken_visium <- FindClusters(object = chicken_visium, resolution=1.0)
 chicken_visium <- RunUMAP(object = chicken_visium, dims = 1:20)
 DimPlot(chicken_visium, reduction = "umap", group.by = "Spatial_snn_res.1", label = TRUE)
 DimPlot(chicken_visium, reduction = "umap", group.by = "orig.ident")
+
+save(chicken_visium, file = "robjs/chicken_visium.4.Robj")
+load("robjs/chicken_visium.Robj")
 
 
 ################### This part includes SC Tranform based normalisation (optional) #######################

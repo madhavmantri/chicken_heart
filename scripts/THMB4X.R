@@ -27,8 +27,7 @@ EnhancedVolcano(cluster6_markers,
                 x = 'avg_logFC',
                 y = 'p_val_adj', title = NULL, subtitle = NULL, caption = NULL, legendPosition = "none", pCutoff = 10^-15, transcriptLabSize = 2, 
                 FCcutoff = 0.6, gridlines.major = FALSE, gridlines.minor = FALSE, colAlpha = 0.8) +
-                theme_bw()+
-
+                theme_bw()
   
 # Creating a seuart object for TMSB4X high cells                  
 subcluster <- subset(chicken.integrated, subset = celltypes.0.5 %in% c("TMSB4X high cells"))
@@ -74,3 +73,4 @@ subcluster$seurat_clusters <- as.character(paste("TMSB4X_high_", subcluster$seur
 Idents(subcluster) <- subcluster$seurat_clusters
 table(subcluster$seurat_clusters)
 chicken.integrated$celltypes_manual[colnames(subcluster)] <- subcluster$seurat_clusters
+
