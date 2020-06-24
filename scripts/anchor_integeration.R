@@ -23,6 +23,7 @@ anchors <- FindTransferAnchors(reference = chicken.integrated, query = chicken_v
 
 # Transfer labels from scRNAseq to spatial using the anchor based approach
 chicken.integrated$cellname <- colnames(chicken.integrated)
+table(chicken.integrated$celltypes.0.5)
 predictions.assay <- TransferData(anchorset = anchors, refdata = chicken.integrated$celltypes.0.5, prediction.assay = TRUE, 
                                   weight.reduction = chicken_visium[["pca"]])
 # save(anchors, predictions.assay, file = "robjs/anchors_and_prediction_assay.RData")
@@ -47,7 +48,7 @@ for(i in 1:nrow(prediction.scores)){
 }
 
 table(prediction.scores$celltype_prediction)
-chicken_visium$cellprediction <- prediction.scores$cellprediction_max
+chicken_visium$celltype_prediction <- prediction.scores$celltype_prediction
 
 # save(chicken_visium, file="robjs/chicken_visium.4.prediction.1.Robj")
 load("robjs/chicken_visium.4.prediction.1.Robj")
@@ -125,11 +126,12 @@ chicken.integrated$cellname <- colnames(chicken.integrated)
 predictions.assay <- TransferData(anchorset = anchors, refdata = chicken.integrated$cellname, prediction.assay = TRUE, 
                                   weight.reduction = chicken_visium[["pca"]])
 
-
 # Adding cellname predictions to original seurat object
 chicken_visium[["predictions_cells"]] <- predictions.assay
 dim(GetAssayData(chicken_visium, assay = "predictions_cells"))
 
+# save(chicken_visium, file="robjs/chicken_visium.4.prediction.1.Robj")
+load("robjs/chicken_visium.4.prediction.1.Robj")
 
 #####################  This section uses the cell spot similarity map and defines spot type in 2 differet ways (optional: not used in manuscript) ############################
 
