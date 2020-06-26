@@ -95,9 +95,6 @@ load("robjs/all.visiums.4.solo1.Robj")
 
 ######################################################### This region find differnetial genes expressed in anatomical regions ###########################################
 
-temp <- day14_visium
-day14_visium <- temp
-dim(day14_visium)
 
 # DefaultAssay(chicken_visium) <- "Spatial"
 # chicken_visium_markers <- FindAllMarkers(chicken_visium, only.pos = T)
