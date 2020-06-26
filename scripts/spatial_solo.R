@@ -48,9 +48,7 @@ day4_visium <- FindSpatiallyVariableFeatures(day4_visium, assay = "Spatial", fea
 # save(day4_visium, day7_visium, day10_visium, day14_visium, file = "all.visiums.4.solo.Robj")
 load("robjs/all.visiums.4.solo.Robj")
 
-temp <- day14_visium
-day14_visium <- temp
-dim(day14_visium)
+
 
 ################################### This section performs clustering on individual datasets and label anatomical regions ##############################################
 
@@ -92,6 +90,14 @@ day4_visium$region <- Idents(day4_visium)
 # save(day4_visium, day7_visium, day10_visium, day14_visium, file = "all.visiums.4.solo1.Robj")
 load("robjs/all.visiums.4.solo1.Robj")
 
+chicken_visium$region <- NA
+chicken_visium$region[paste("D4-A1", colnames(day4_visium), sep = "_")] <- as.character(day4_visium$region)
+chicken_visium$region[paste("D7-B1", colnames(day7_visium), sep = "_")] <- as.character(day7_visium$region)
+chicken_visium$region[paste("D10-C1", colnames(day10_visium), sep = "_")] <- as.character(day10_visium$region)
+chicken_visium$region[paste("D14-D1", colnames(day14_visium), sep = "_")] <- as.character(day14_visium$region)
+
+# save(chicken_visium, file = "robjs/chicken_visium.4.prediction.1.Robj")
+load("robjs/chicken_visium.4.prediction.1.Robj")
 
 ######################################################### This region find differnetial genes expressed in anatomical regions ###########################################
 
@@ -158,8 +164,8 @@ SpatialFeaturePlot(day4_visium, features = c("CSRP2"), crop = F, pt.size.factor 
 common_genes <- intersect(top.features.day4, intersect(top.features.day7, intersect(top.features.day10, top.features.day14)))
 
 
-###################################
-
+################################### This section adds the cell type composition to individual visium objects ##############################################
+################################### This section also checks for spatially variable restricted cell types ###############################################
 
 temp <- GetAssayData(subset(chicken_visium, subset = orig.ident == "D14"), assay = "predictions")
 temp <- temp[rownames(temp) != "max",]
@@ -206,6 +212,8 @@ DefaultAssay(day4_visium) <- "predictions"
 day4_visium <- FindSpatiallyVariableFeatures(day4_visium, assay = "predictions", selection.method = "markvariogram", 
                                               features = rownames(day4_visium)[rownames(day4_visium) != "max"], r.metric = 5, slot = "data")
 
+# save(day4_visium, day7_visium, day10_visium, day14_visium, file = "all.visiums.4.solo2.Robj")
+load("robjs/all.visiums.4.solo2.Robj")
 
 ################################### Calculate entropy in cell type prediction values ############################################################
 data <- as.data.frame(GetAssayData(chicken_visium, assay = "predictions"))
