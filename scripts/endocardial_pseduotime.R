@@ -108,10 +108,9 @@ ElbowPlot(object = endocardial, ndims = 50)
 
 # Perform clustering and UMAP reduction
 endocardial <- FindNeighbors(object=endocardial, reduction = "pca_scanorama_data", dims = 1:20, force.recalc = TRUE, graph.name = "scanorama_snn_data")
-endocardial <- FindClusters(object=endocardial, graph.name = "scanorama_snn_data", resolution=0.20)
+endocardial <- FindClusters(object=endocardial, graph.name = "scanorama_snn_data", resolution=0.10)
 table(Idents(endocardial))
 endocardial <- RunUMAP(object = endocardial, reduction = "pca_scanorama_data", dims = 1:20, reduction.name = "umap_scanorama_data")
-
 # To visualise
 DimPlot(endocardial, reduction = "umap_scanorama_data", label = TRUE)
 DimPlot(object = endocardial, reduction = "umap_scanorama_data", group.by = "orig.ident") 
@@ -131,17 +130,62 @@ DimPlot(endocardial, reduction = "scanorama_phate_gamma1", group.by = "orig.iden
 # save(endocardial, file="robjs/endocardial.Robj")
 load("robjs/endocardial.Robj")
 
+Idents(endocardial) <- endocardial$scanorama_snn_data_res.0.1
+endocardial <- RenameIdents(endocardial, "0" = "C2",  "1" = "C1")
 DefaultAssay(endocardial) <- "RNA"
-markers.endocardial.RNA <- FindAllMarkers(endocardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.1, only.pos = T, do.print = TRUE)
+markers.endocardial.RNA <- FindAllMarkers(endocardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.01, only.pos = T, do.print = TRUE)
 markers.endocardial.RNA <- subset(markers.endocardial.RNA[!(rownames(markers.endocardial.RNA) %in% grep("^ENSGAL", x = rownames(markers.endocardial.RNA), value = TRUE)),])
-markers.top10 = markers.endocardial.RNA %>% group_by(cluster) %>% top_n(10, avg_logFC)
-markers.top20 = markers.endocardial.RNA %>% group_by(cluster) %>% top_n(20, avg_logFC)
 write_csv(markers.endocardial.RNA, path = "endocardial.markers.csv")
 # save(markers.endocardial.RNA, file="robjs/markers.endocardial.Robj")
-load("robjs/markers.endocardial.Robj")
+markers.top10 = markers.endocardial.RNA %>% group_by(cluster) %>% top_n(10, avg_logFC)
+DotPlot(endocardial, assay = "RNA", features = unique(markers.top10$gene))
 
-DoHeatmap(endocardial, assay = "RNA", features = markers.top10$gene, label = F) 
+endocardial$subcluster  <- factor(Idents(endocardial), levels = c("C1", "C2"))
 
+pdf(file="EndoClusters.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DimPlot(endocardial, reduction = "umap_scanorama_data", group.by = "subcluster") + scale_color_manual(values = as.vector(alphabet())[1:20]) + theme_nothing()
+DimPlot(endocardial, reduction = "scanorama_phate_gamma0", group.by = "subcluster") + scale_color_manual(values = as.vector(alphabet())[1:20]) + theme_nothing()
+dev.off()
+
+pdf(file="EndoDay.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DimPlot(endocardial, reduction = "umap_scanorama_data", group.by = "day") + theme_nothing()
+DimPlot(endocardial, reduction = "scanorama_phate_gamma0", group.by = "day") + theme_nothing()
+dev.off()
+
+pdf(file="endo_EGFL7.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+FeaturePlot(endocardial, reduction = "umap_scanorama_data", features = c("EGFL7"), pt.size = 0.001) + theme_nothing()
+dev.off()
+
+pdf(file="endo_nCount.pdf",
+    width=1.3, height=1.3, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+VlnPlot(object = endocardial, features = c("nCount_RNA"), group.by = "subcluster", pt.size = 0) + scale_y_log10() + scale_fill_manual(values = as.vector(alphabet())[1:20]) +
+  stat_summary(fun.y = median, geom='point', size = 5, colour = "black", shape = 95) +
+  xlab("Sample")+
+  ylab("Number of genes")+
+  theme_bw()+
+  theme(panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background= element_rect(fill = "transparent", color = NA),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y= element_blank(),
+        axis.text = element_text(family = "Helvetica", size = 6, color = "black"),
+        axis.text.x = element_text(colour = "black", size = 6, family = "Helvetica", angle = 0, color = as.vector(alphabet())[1:20]), 
+        plot.title=element_blank())
+dev.off()
+
+# save(endocardial, file="robjs/endocardial.Robj")
+load("robjs/endocardial.Robj")
 
 ## monocle analysis on reintegarted datasets
 cds <- seurat3tomonocle(endocardial, assay = "RNA", slot = "counts")
@@ -153,11 +197,11 @@ seurat_variable_genes <- VariableFeatures(FindVariableFeatures(endocardial, assa
 
 DimPlot(endocardial, reduction = "umap_scanorama_data", group.by = "seurat_clusters")
 day_genes <- differentialGeneTest(cds, fullModelFormulaStr = '~seurat_clusters', cores = 16)
+
 # save(day_genes, file="robjs/endo_day_genes.Robj")
 load("robjs/endo_day_genes.Robj")
 
 day_genes1 <- row.names(day_genes)[order(day_genes$qval)][1:2000]
-
 cds <- setOrderingFilter(cds, ordering_genes = day_genes1)
 dim(cds)
 
@@ -177,13 +221,23 @@ GM_state <- function(cds){
 
 cds <- orderCells(cds, root_state = GM_state(cds))
 
-
 plot_cell_trajectory(cds)
 plot_cell_trajectory(cds, color_by = "day")
 plot_cell_trajectory(cds, color_by = "seurat_clusters") + facet_wrap(~seurat_clusters)
 plot_cell_trajectory(cds, color_by = "Phase")
 plot_cell_trajectory(cds, color_by = "Pseudotime")
 
-
 # save(cds, file="robjs/endo_cds.Robj")
 load("robjs/endo_cds.Robj")
+
+pdf(file="EndoCDSClusters.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+plot_cell_trajectory(cds, color_by = "seurat_clusters", show_branch_points = FALSE, cell_size = 0.5) + theme_nothing() + scale_color_manual(values = as.vector(alphabet())[1:20]) 
+dev.off()
+
+pdf(file="EndoCDSDay.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+plot_cell_trajectory(cds, color_by = "day", show_branch_points = FALSE, cell_size = 0.5) + theme_nothing() 
+dev.off()

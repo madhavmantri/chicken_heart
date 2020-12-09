@@ -77,24 +77,50 @@ DimPlot(chicken, reduction = "umap_scanorama", group.by = "orig.ident")
 load("robjs/chicken_normalised_scanorama2.Robj")
 
 
+chicken <- chicken.integrated
 # Differnetial marker analysis
 DefaultAssay(object = chicken) <- "RNA"
-markers.all = FindAllMarkers(chicken, assay = "RNA", do.print = TRUE, logfc.threshold = 1.5, return.thresh = 0.1, min.pct = 0.5, only.pos = TRUE)
+markers.all = FindAllMarkers(chicken, assay = "RNA", do.print = TRUE, logfc.threshold = 0.5, return.thresh = 0.1, min.pct = 0.5, only.pos = TRUE)
 markers.top10 = markers.all %>% group_by(cluster) %>% top_n(10, avg_logFC)
 markers.top20 = markers.all %>% group_by(cluster) %>% top_n(20, avg_logFC)
+write.csv(markers.all, "markers.all.clusters.csv")
 
+library(pals)
+markers.all <- read.csv(file = "markers.all.clusters.csv", row.names = 1)
+markers.all <- subset(markers.all[!(rownames(markers.all) %in% grep("^ENSGAL", x = rownames(markers.all), value = TRUE)),])
+markers.top5 = markers.all %>% group_by(cluster) %>% top_n(5, avg_logFC)
+levels(markers.top5$cluster) == levels(chicken.integrated$celltypes.0.5)
+pdf(file="allClustersDotplot.pdf",
+    width= 6.5, height=2.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DotPlot(chicken.integrated, features = unique(markers.top5$gene), cols = c("gray", "brown"), scale.by = "size", dot.scale = 2.7) + # scale_colour_viridis_c(direction = -1)+
+  theme_bw() + 
+  theme(plot.background=element_blank(),
+        panel.grid = element_line(size = 0.1),
+        legend.position = "bottom",
+        legend.title = element_text(colour = "black", size = 7, family = "Helvetica"), 
+        legend.text = element_text(colour = "black", size = 6, family = "Helvetica"),
+        legend.spacing = unit(0, "pt"),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        legend.box.margin=margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        axis.title=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y = element_text(colour = "black", size = 6, family = "Helvetica", angle = 0, color = rev(as.vector(kelly())[3:(2+length(levels(markers.top5$cluster)))])), # element_blank(), # 
+        axis.text.x = element_text(colour = "black", size = 5.0, family = "Helvetica", angle = 45, vjust = 1, hjust = 1),
+        plot.title=element_blank())
+dev.off()
 
 # Use differential marker analysis to label clusters with cell type names
 Idents(chicken) <- chicken$scanorama_snn_res.0.5
 DimPlot(object = chicken, reduction = "umap", label = TRUE)
-chicken <- RenameIdents(chicken, `0` = "Fibroblast cells", `1` = "Cardiomyocyte cells", `2` = "Myocardial progenitor cells",
-                                   `3` = "Endothelial cells", `4` = "Cardiomyocyte precursor cells", `5` = "Endocardial valve cells",
+chicken <- RenameIdents(chicken, `0` = "Fibroblast cells", `1` = "Cardiomyocytes- 1", `2` = "Immature myocardial cells",
+                                   `3` = "Endocardial cells", `4` = "Cardiomyocytes- 2", `5` = "Valve cells",
                                    `6` = "TMSB4X high cells",
                                    `7` = "Epicardial progenitor cells-1", `8` = "Erythrocytes", `9` = "Vascular endothelial cells", `10` = "Erythrocytes",
-                                   `11` = "Smooth muscle cells", `12` = "Epicardial progenitor cells-2", `13` = "Mitochondria enriched cardiomyocytes", `14` = "Macrophages",
+                                   `11` = "Mural cells", `12` = "Epicardial progenitor cells-2", `13` = "MT-enriched cardiomyocytes", `14` = "Macrophages",
                                    `15` = "Erythrocytes", `16` = "Dendritic cells")
 chicken$celltypes.0.5 <- Idents(chicken)
-
 chicken.integrated <- chicken
 
 # save(chicken.integrated, file = "robjs/chicken_normalised_scanorama3.Robj")

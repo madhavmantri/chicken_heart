@@ -61,16 +61,80 @@ markers.all = FindAllMarkers(subcluster, assay = "RNA", do.print = TRUE, logfc.t
 markers.top10 = markers.all %>% group_by(cluster) %>% top_n(10, avg_logFC)
 markers.top20 = markers.all %>% group_by(cluster) %>% top_n(20, avg_logFC)
 write_csv(markers.all, "thymosin_subclusters_markers.csv")
-
 subcluster <- RenameIdents(subcluster, "0" = "Vascular smooth muscle- like", "1" = "Vascular endothelial- like", "2" = "Cardiomyocytes_like")
 
 DefaultAssay(subcluster) <- "RNA"
-chicken.integrated$celltypes_manual <- as.character(chicken.integrated$celltypes.0.5)
-DimPlot(subcluster)
 subcluster <- RenameIdents(subcluster, "0" = "Vascular smooth muscle- like", "1" = "Vascular endothelial- like", "2" = "Cardiomyocytes_like")
 subcluster$seurat_clusters <- Idents(subcluster)
-subcluster$seurat_clusters <- as.character(paste("TMSB4X_high_", subcluster$seurat_clusters, sep = ""))
-Idents(subcluster) <- subcluster$seurat_clusters
-table(subcluster$seurat_clusters)
-chicken.integrated$celltypes_manual[colnames(subcluster)] <- subcluster$seurat_clusters
+
+pdf(file="tmsb4x_exp_subclusters_day.pdf",
+    width=1.0, height=0.8, paper="special", bg="white",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+library(pals)
+library(ggplot2)
+subcluster$day <- factor(subcluster$day, levels = c("D4", "D7", "D10", "D14"))
+VlnPlot(object = subcluster, features = c("TMSB4X"), group.by = "day", pt.size = 0) + 
+  stat_summary(fun.y = median, geom='point', size = 5, colour = "black", shape = 95) + 
+  theme_bw() + labs(y = "Log-normalised TMSB4X expression") + 
+  theme(plot.background=element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        legend.key.size = unit(1, "pt"),
+        axis.title.x = element_blank() ,
+        axis.title.y=element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(colour = "black", size = 6, family = "Helvetica"),
+        axis.ticks.length.x = unit(0, "pt"),
+        plot.title=element_blank())
+dev.off()
+
+pdf(file="TMSB4X_Clusters.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DimPlot(subcluster, reduction = "umap") + theme_nothing() # + scale_color_manual(values = as.vector(alphabet())[1:20])
+dev.off()
+
+pdf(file="TMSB4X_Day.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DimPlot(subcluster, reduction = "umap", group.by = "day") + theme_nothing()
+dev.off()
+
+pdf(file="TMSB4X_PECAM1.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+FeaturePlot(subcluster, reduction = "umap", features = c("EGFL7"), pt.size = 0.001) + theme_nothing()
+dev.off()
+
+library(pals)
+library(ggplot2)
+temp <- SubsetData(chicken.integrated, ident.remove = c("Macrophages", "Dendritic cells", "Erythrocytes"))
+temp1 <- cbind("TMSB4X" = as.matrix(GetAssayData(temp))["TMSB4X",], temp@meta.data)
+cdata <- ddply(temp1, c("day", "celltypes.0.5"), summarise, 
+               N    = length(TMSB4X),
+               mean = mean(TMSB4X),
+               sd   = sd(TMSB4X), 
+               se = sd / sqrt(N)
+)
+pdf(file="TMSB4X_heatmap.pdf",
+    width=4, height=1.5, paper="special", bg="white",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+ggplot(data = cdata, mapping = aes(x = celltypes.0.5, y = day, fill = mean)) + geom_bin2d() + theme_classic() + scale_fill_viridis(direction = -1) + 
+  labs(x = "Cell types", y = "Stage", fill = "TMSB4X") + 
+  theme(plot.background=element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "right",
+        legend.text = element_text(colour = "black", size = 6, family = "Helvetica"),
+        axis.title.x =  element_text(colour = "black", size = 8, family = "Helvetica"),
+        axis.title.y =  element_text(colour = "black", size = 8, family = "Helvetica"),
+        legend.title =  element_text(colour = "black", size = 8, family = "Helvetica"),
+        axis.text.x = element_text(colour = "black", size = 6, family = "Helvetica", angle = 30, vjust = 1, hjust = 1), # 
+        axis.text.y = element_text(colour = "black", size = 6, family = "Helvetica"),
+        plot.title=element_blank())
+dev.off()
+
 

@@ -131,20 +131,68 @@ tree_chicken <- phate(data, gamma = 1)
 myocardial@reductions[["scanorama_phate_gamma1"]] <- CreateDimReducObject(embeddings = tree_chicken$embedding, assay = "scanorama", key = "PHATE")
 DimPlot(myocardial, reduction = "scanorama_phate_gamma1", group.by = "orig.ident") 
 
-# save(myocardial, file="robjs/myocardial1.Robj")
-load("robjs/myocardial1.Robj")
+# save(myocardial, file="robjs/myocardial.Robj")
+load("robjs/myocardial.Robj")
+
+FeaturePlot(myocardial, reduction = "umap_scanorama_data", c("TNNC2"))
+VlnPlot(myocardial, c("nFeature_RNA", "nCount_RNA"))
 
 DefaultAssay(myocardial) <- "RNA"
-markers.myocardial.RNA <- FindAllMarkers(myocardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.1, only.pos = T, do.print = TRUE)
+table(myocardial$scanorama_snn_data_res.0.1)
+Idents(myocardial) <- myocardial$scanorama_snn_data_res.0.1
+myocardial <- RenameIdents(myocardial, "0" = "C1",  "2" = "C2", "1" = "C3")
+DefaultAssay(myocardial) <- "RNA"
+markers.myocardial.RNA <- FindAllMarkers(myocardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.01, only.pos = T, do.print = TRUE)
 markers.myocardial.RNA <- subset(markers.myocardial.RNA[!(rownames(markers.myocardial.RNA) %in% grep("^ENSGAL", x = rownames(markers.myocardial.RNA), value = TRUE)),])
-markers.top10 = markers.myocardial.RNA %>% group_by(cluster) %>% top_n(10, avg_logFC)
-markers.top20 = markers.myocardial.RNA %>% group_by(cluster) %>% top_n(20, avg_logFC)
 write_csv(markers.myocardial.RNA, path = "myocardial.markers.csv")
-# save(markers.myocardial.RNA, file="robjs/markers.myocardial.Robj")
-load("robjs/markers.myocardial.Robj")
+markers.top10 = markers.myocardial.RNA %>% group_by(cluster) %>% top_n(10, avg_logFC)
 
-DoHeatmap(myocardial, assay = "RNA", features = markers.top10$gene, label = F) 
+myocardial$subcluster <- factor(Idents(myocardial), levels = c("C1", "C2", "C3"))
 
+pdf(file="MyoClusters.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DimPlot(myocardial, reduction = "umap_scanorama_data", group.by = "subcluster") + scale_color_manual(values = as.vector(alphabet())[1:20]) + theme_nothing()
+DimPlot(myocardial, reduction = "scanorama_phate_gamma0", group.by = "subcluster") + scale_color_manual(values = as.vector(alphabet())[1:20]) + theme_nothing()
+dev.off()
+
+pdf(file="MyoDay.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DimPlot(myocardial, reduction = "umap_scanorama_data", group.by = "day") + theme_nothing()
+DimPlot(myocardial, reduction = "scanorama_phate_gamma0", group.by = "day") + theme_nothing()
+dev.off()
+
+pdf(file="myo_EGFL7.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+FeaturePlot(myocardial, reduction = "umap_scanorama_data", features = c("EGFL7"), pt.size = 0.001) + theme_nothing()
+dev.off()
+
+pdf(file="Myo_nCount.pdf",
+    width=1.3, height=1.3, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+VlnPlot(object = myocardial, features = c("nCount_RNA"), group.by = "subcluster", pt.size = 0) + scale_y_log10() + scale_fill_manual(values = as.vector(alphabet())[1:20]) +
+  stat_summary(fun.y = median, geom='point', size = 5, colour = "black", shape = 95) +
+  xlab("Sample")+
+  ylab("Number of genes")+
+  theme_bw()+
+  theme(panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background= element_rect(fill = "transparent", color = NA),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y= element_blank(),
+        axis.text = element_text(family = "Helvetica", size = 6, color = "black"),
+        axis.text.x = element_text(colour = "black", size = 6, family = "Helvetica", angle = 0, color = as.vector(alphabet())[1:20]), 
+        plot.title=element_blank())
+dev.off()
+
+# save(myocardial, file="robjs/myocardial.Robj")
+load("robjs/myocardial.Robj")
 
 ## monocle analysis on reintegarted datasets
 cds <- seurat3tomonocle(myocardial, assay = "RNA", slot = "counts")
@@ -187,6 +235,17 @@ plot_cell_trajectory(cds, color_by = "seurat_clusters") + facet_wrap(~seurat_clu
 plot_cell_trajectory(cds, color_by = "Phase")
 plot_cell_trajectory(cds, color_by = "Pseudotime")
 
-
 # save(cds, file="robjs/myo_cds.Robj")
 load("robjs/myo_cds.Robj")
+
+pdf(file="MyoCDSClusters.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+plot_cell_trajectory(cds, color_by = "seurat_clusters", show_branch_points = FALSE, cell_size = 0.5) + theme_nothing() + scale_color_manual(values = as.vector(alphabet())[1:20]) 
+dev.off()
+
+pdf(file="MyoCDSDay.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+plot_cell_trajectory(cds, color_by = "day", show_branch_points = FALSE, cell_size = 0.5) + theme_nothing() 
+dev.off()

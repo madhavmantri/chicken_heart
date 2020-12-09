@@ -49,7 +49,6 @@ day4_visium <- FindSpatiallyVariableFeatures(day4_visium, assay = "Spatial", fea
 load("robjs/all.visiums.4.solo.Robj")
 
 
-
 ################################### This section performs clustering on individual datasets and label anatomical regions ##############################################
 
 day14_visium <- FindNeighbors(object = day14_visium, features = SpatiallyVariableFeatures(day4_visium), dims=1:20, force.recalc = TRUE)
@@ -117,7 +116,6 @@ markers.top20 = day4_spatial_markers %>% group_by(cluster) %>% top_n(20, avg_log
 markers.top10 = day4_spatial_markers %>% group_by(cluster) %>% top_n(10, avg_logFC)
 markers.top5 = day4_spatial_markers %>% group_by(cluster) %>% top_n(5, avg_logFC)
 
-
 SpatialDimPlot(day7_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian()
 day7_spatial_markers <- FindAllMarkers(day7_visium, assay = "Spatial",  only.pos = T, min.pct = 0.3, logfc.threshold = 0.5)
 day7_spatial_markers <- subset(day7_spatial_markers[!(rownames(day7_spatial_markers) %in% grep("^ENSGAL", x = rownames(day7_spatial_markers), value = TRUE)),])
@@ -125,7 +123,6 @@ markers.top20 = day7_spatial_markers %>% group_by(cluster) %>% top_n(20, avg_log
 markers.top10 = day7_spatial_markers %>% group_by(cluster) %>% top_n(10, avg_logFC)
 markers.top5 = day7_spatial_markers %>% group_by(cluster) %>% top_n(5, avg_logFC)
 DoHeatmap(day7_visium, markers.top10$gene)
-
 
 SpatialDimPlot(day10_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian()
 day10_spatial_markers <- FindAllMarkers(day10_visium, assay = "Spatial", only.pos = T)
@@ -189,7 +186,6 @@ DefaultAssay(day10_visium) <- "predictions"
 day10_visium <- FindSpatiallyVariableFeatures(day10_visium, assay = "predictions", selection.method = "markvariogram", 
                                               features = rownames(day10_visium)[rownames(day10_visium) != "max"], r.metric = 5, slot = "data")
 
-
 temp <- GetAssayData(subset(chicken_visium, subset = orig.ident == "D7"), assay = "predictions")
 temp <- temp[rownames(temp) != "max",]
 rowSums(temp)
@@ -224,7 +220,6 @@ chicken_visium$num_celltypes_0.05 = colSums(data >= 0.05)
 chicken_visium$emp_entropy = unlist(temp)
 
 
-
 ######################### This (optional) section creates a dimension reduciton for visium spatial maps (removes the images) ########################################
 
 visium.embeddings <- as.matrix(day10_visium@images$slice1@coordinates[,c("col", "row")])
@@ -236,4 +231,3 @@ day10_visium[['visium']] <- CreateDimReducObject(
 )
 SpatialDimPlot(day10_visium)
 DimPlot(day10_visium, reduction = "visium")
-

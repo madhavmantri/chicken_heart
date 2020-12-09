@@ -79,8 +79,6 @@ DimPlot(chicken, reduction = "umap", group.by = "orig.ident")
 # save(chicken, file="robjs/chicken_raw.Robj")
 # load(here("robjs", "chicken_raw.Robj"))
 
-min(chicken$nCount_RNA)
-min(chicken$nFeature_RNA)
 
 ################### This part includes SC Tranform based normalisation (optional) #######################
 
