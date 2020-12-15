@@ -54,27 +54,22 @@ load("robjs/all.visiums.4.solo.Robj")
 day14_visium <- FindNeighbors(object = day14_visium, features = SpatiallyVariableFeatures(day4_visium), dims=1:20, force.recalc = TRUE)
 day14_visium <- FindClusters(object = day14_visium, resolution=0.6)
 SpatialDimPlot(day14_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian()
-# SpatialDimPlot(day14_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian() + geom_vline(xintercept = 310) + geom_vline(xintercept = 400)
-day14_visium <- RenameIdents(day14_visium, "0" = "Compact left ventricle and \ninter-ventricular septum", "2" = "Right ventricle", 
-                             "4" = "Endothelium", "1" = "Atria", "5" = "Epicardium", "3" = "Valves")
+day14_visium <- RenameIdents(day14_visium, "0" = "Compact LV and \ninter-ventricular septum", "2" = "Right ventricle", 
+                             "4" = "Trabecular LV and \nendocardium", "1" = "Atria", "5" = "Epicardium", "3" = "Valves")
 day14_visium$region <- Idents(day14_visium)
 
 day10_visium <- FindNeighbors(object = day10_visium, dims=1:20, force.recalc = TRUE)
 day10_visium <- FindClusters(object = day10_visium, resolution=0.5)
 SpatialDimPlot(day10_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian()
-SpatialDimPlot(day10_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian() + geom_vline(xintercept = 200) + geom_vline(xintercept = 260) +
-  geom_vline(xintercept = 325) + geom_vline(xintercept = 400) +  geom_vline(xintercept = 470)
-day10_visium <- RenameIdents(day10_visium, "0" = "Compact left ventricle and \ninter-ventricular septum", "3" = "Right ventricle", 
+day10_visium <- RenameIdents(day10_visium, "0" = "Compact LV and \ninter-ventricular septum", "3" = "Right ventricle", 
                              "1" = "Atria", "5" = "Epicardium", "4" = "Valves",
-                             "2" = 'Trabecular left ventricle and \nendocardium', "6" = "Outflow tract")
+                             "2" = 'Trabecular LV and \nendocardium', "6" = "Outflow tract")
 day10_visium$region <- Idents(day10_visium)
 
 day7_visium <- FindNeighbors(object = day7_visium, dims=1:20, force.recalc = TRUE)
 day7_visium <- FindClusters(object = day7_visium, resolution=0.6)
 SpatialDimPlot(day7_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian()
-SpatialDimPlot(day7_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian() + geom_vline(xintercept = 200) + geom_vline(xintercept = 260) +
-  geom_vline(xintercept = 325) + geom_vline(xintercept = 400) +  geom_vline(xintercept = 470)
-day7_visium <- RenameIdents(day7_visium, "0" = "Compact left ventricle and \ninter-ventricular septum", "1" = "Trabecular left ventricle and \nendocardium", "5" = "Right ventricle", "3" = "Endothelium", "2" = "Atria", "4" = "Epicardium", "6" = "Valves")
+day7_visium <- RenameIdents(day7_visium, "0" = "Compact LV and \ninter-ventricular septum", "1" = "Trabecular LV and \nendocardium", "5" = "Right ventricle", "3" = "Endothelium", "2" = "Atria", "4" = "Epicardium", "6" = "Valves")
 day7_visium$region <- Idents(day7_visium)
 
 day4_visium <- FindNeighbors(object = day4_visium, dims=1:20, force.recalc = TRUE)
@@ -94,6 +89,7 @@ chicken_visium$region[paste("D4-A1", colnames(day4_visium), sep = "_")] <- as.ch
 chicken_visium$region[paste("D7-B1", colnames(day7_visium), sep = "_")] <- as.character(day7_visium$region)
 chicken_visium$region[paste("D10-C1", colnames(day10_visium), sep = "_")] <- as.character(day10_visium$region)
 chicken_visium$region[paste("D14-D1", colnames(day14_visium), sep = "_")] <- as.character(day14_visium$region)
+table(chicken_visium$region)
 
 # save(chicken_visium, file = "robjs/chicken_visium.4.prediction.1.Robj")
 load("robjs/chicken_visium.4.prediction.1.Robj")
@@ -107,7 +103,6 @@ load("robjs/chicken_visium.4.prediction.1.Robj")
 # markers.top20 = chicken_visium_markers %>% group_by(cluster) %>% top_n(20, avg_logFC)
 # markers.top10 = chicken_visium_markers %>% group_by(cluster) %>% top_n(10, avg_logFC)
 # DoHeatmap(chicken_visium_markers, markers.top10$gene)
-
 
 SpatialDimPlot(day4_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian()
 day4_spatial_markers <- FindAllMarkers(day4_visium, assay = "Spatial", only.pos = T)
@@ -140,8 +135,29 @@ markers.top10 = day14_spatial_markers %>% group_by(cluster) %>% top_n(10, avg_lo
 markers.top5 = day14_spatial_markers %>% group_by(cluster) %>% top_n(5, avg_logFC)
 DoHeatmap(day10_visium, markers.top10$gene)
 
-DotPlot(day14_visium, features = unique(markers.top5$gene), cols = c("gray", "brown"), scale.by = "size", dot.scale = 2.7)
 
+# Dotplots for anatomical regions' DGE
+pdf(file="D4_dotplot.pdf",
+    width=1.6, height=2.7, paper="special", bg="white",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+DotPlot(day4_visium, features = unique(markers.top5$gene), cols = c("gray", "brown"), scale.by = "size", dot.scale = 1.7) + 
+  theme_bw() + 
+  theme(plot.background=element_blank(),
+        panel.grid = element_line(size = 0.1),
+        legend.position = "none",
+        legend.title = element_text(colour = "black", size = 7, family = "Helvetica"), 
+        legend.text = element_text(colour = "black", size = 6, family = "Helvetica"),
+        legend.spacing = unit(0, "pt"),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        legend.box.margin=margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        axis.title=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.x = element_text(colour = "black", size = 5, angle = 60, hjust  = 1.0, vjust = 1.0), #element_text(colour = "black", size = 6, family = "Helvetica", angle = 30, color = rev(colors_used), vjust = 1, hjust = 1), 
+        axis.text.y = element_text(colour = "black", size = 5, family = "Helvetica"),
+        plot.title=element_blank()) +  
+  coord_flip()
+dev.off()
 
 ####################################### This section analyses and visualises the top spatially variable/ restricted genes ###############################
 
@@ -152,11 +168,6 @@ top.features.day4 <- head(SpatiallyVariableFeatures(day4_visium, selection.metho
 all.genes = unique(c(rownames(day4_visium), rownames(day7_visium), rownames(day10_visium), rownames(day14_visium)))
 # save(all.genes, top.features.day4, top.features.day7, top.features.day10, top.features.day10, top.features.day14, file = "robjs/top.features.100.Robj")
 load("robjs/top.features.100.Robj")
-
-SpatialFeaturePlot(day14_visium, features = c("PITX2"), crop = F, pt.size.factor = 1.0)+ coord_cartesian()
-SpatialFeaturePlot(day10_visium, features = c("SPARC"), crop = F, pt.size.factor = 1.0)+ coord_cartesian()
-SpatialFeaturePlot(day7_visium, features = c("BMP10"), crop = F, pt.size.factor = 1.0) + coord_cartesian()
-SpatialFeaturePlot(day4_visium, features = c("CSRP2"), crop = F, pt.size.factor = 1.0)+ coord_cartesian()
 
 common_genes <- intersect(top.features.day4, intersect(top.features.day7, intersect(top.features.day10, top.features.day14)))
 
@@ -218,7 +229,6 @@ library(entropy)
 temp <- lapply(data, FUN = entropy.empirical)
 chicken_visium$num_celltypes_0.05 = colSums(data >= 0.05)
 chicken_visium$emp_entropy = unlist(temp)
-
 
 ######################### This (optional) section creates a dimension reduciton for visium spatial maps (removes the images) ########################################
 

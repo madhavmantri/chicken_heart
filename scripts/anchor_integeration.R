@@ -108,6 +108,13 @@ chordDiagram(interaction_matrix, grid.col = color_used, col = col, annotationTra
 col[rownames(col)!= "TMSB4X high cells", colnames(col) != "TMSB4X high cells"] <- "#cecece"
 chordDiagram(interaction_matrix, grid.col = color_used, col = col, annotationTrack = "grid")
 
+# col[rownames(col)!= "TMSB4X high cells", colnames(col) != "TMSB4X high cells"] <- "#cecece"
+
+pdf(file="Fig1e.4.pdf",
+    width=1.5, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb")
+chordDiagram(interaction_matrix, grid.col = color_used, col = col, annotationTrack = "grid")
+dev.off()
 
 #####################  This section saves cell ids for visium samples  ############################
 

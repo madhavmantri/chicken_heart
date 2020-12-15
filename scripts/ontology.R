@@ -15,13 +15,12 @@ load(here("robjs", "chicken_normalised_scanorama_markers_RNA.Robj"))
 library(org.Gg.eg.db)
 library(topGO)
 
-
-cluster6_markers <- read.csv("Cluster6_all_markers.csv")
+cluster6_markers <- read.csv("csvs/Cluster6_all_markers.csv")
 cluster6_markers <- cluster6_markers[cluster6_markers$avg_logFC > 0.6,]
 geneList <- cluster6_markers$p_val_adj
 names(geneList) <- rownames(cluster6_markers)
 
-load("robjs/myocytes_day_genes.Robj")
+load("robjs/fibro_day_genes.Robj")
 geneList <- day_genes$qval
 names(geneList) <- rownames(day_genes)
 
@@ -45,8 +44,45 @@ resultKS <- runTest(GOdata, algorithm = "classic", statistic = "ks")
 resultKS.elim <- runTest(GOdata, algorithm = "elim", statistic = "ks")
 allRes <- GenTable(GOdata,  classicFisher = resultFisher, classicKS = resultKS, KS.elim = resultKS.elim,
                    orderBy = "classicFisher",
-                   ranksOf = "classicFisher", topNodes = 50)
+                   ranksOf = "classicFisher", topNodes = 50, numChar = 100)
 
+# write.csv(allRes, file = "csvs/fibroblast-go.csv")
+allRes <- read.csv("csvs/fibroblast-go.csv", row.names = 1)
+
+library(ggplot2)
+library(pals)
+
+library(stringr)
+allRes$newTerm = str_wrap(allRes$Term, width = 40)
+
+pdf(file="fibroblast_GO.pdf",
+    width=2.5, height=1.6, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+allRes$classicFisher <- as.numeric(allRes$classicFisher)
+ggplot(data = allRes[1:10,]) + geom_bar(mapping = aes(x = reorder(newTerm, -classicFisher), y = -log10(classicFisher), fill = GO.ID), stat = "identity") +
+  coord_flip() + theme_bw() + scale_fill_manual(values = as.vector(alphabet(20))) + 
+  theme(panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background= element_rect(fill = "transparent", color = NA),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y= element_blank(),
+        axis.text = element_text(family = "Helvetica", size = 5, color = "black"),
+        axis.text.x = element_text(family = "Helvetica", size = 5, color = "black"),
+        plot.title=element_blank())
+dev.off()  
+
+pdf(file="SupFig3c.pdf",
+    width=3.0, height=3.0, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5)
+showSigOfNodes(GOdata, score(resultFisher), firstSigNodes = 6, useInfo = 'all')                                    
+dev.off()
+
+
+############################################### Optional script to get a mapp of GO terms for all chicken genes ###################################
 
 library(stringr)
 library(org.Gg.eg.db)

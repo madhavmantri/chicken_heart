@@ -4,12 +4,11 @@ library(Seurat)
 packageVersion("Seurat")
 library(Matrix); library(stringr)
 library(readr); library(here)
-library(fitdistrplus); library(dplyr)
+library(fitdistrplus); library(dplyr); library(plyr)
 library("URD"); library(monocle)
 setwd("/workdir/mm2937/chicken/")
-library(future)
-plan("multiprocess", workers = 64)
-options(future.globals.maxSize = 3000 * 1024^2)
+library(pals)
+library(ggplot2); library(viridis)
 
 # load(here("robjs", "chicken_normalised_scanorama3.Robj"))
 
@@ -108,8 +107,7 @@ pdf(file="TMSB4X_PECAM1.pdf",
 FeaturePlot(subcluster, reduction = "umap", features = c("EGFL7"), pt.size = 0.001) + theme_nothing()
 dev.off()
 
-library(pals)
-library(ggplot2)
+
 temp <- SubsetData(chicken.integrated, ident.remove = c("Macrophages", "Dendritic cells", "Erythrocytes"))
 temp1 <- cbind("TMSB4X" = as.matrix(GetAssayData(temp))["TMSB4X",], temp@meta.data)
 cdata <- ddply(temp1, c("day", "celltypes.0.5"), summarise, 
@@ -118,6 +116,8 @@ cdata <- ddply(temp1, c("day", "celltypes.0.5"), summarise,
                sd   = sd(TMSB4X), 
                se = sd / sqrt(N)
 )
+
+cdata$day <- factor(cdata$day, levels = c("D4", "D7", "D10", "D14"))
 pdf(file="TMSB4X_heatmap.pdf",
     width=4, height=1.5, paper="special", bg="white",
     fonts="Helvetica", colormodel = "rgb", pointsize=5)
