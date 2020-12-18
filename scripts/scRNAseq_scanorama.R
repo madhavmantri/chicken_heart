@@ -86,14 +86,14 @@ markers.top20 = markers.all %>% group_by(cluster) %>% top_n(20, avg_logFC)
 write.csv(markers.all, "markers.all.clusters.csv")
 
 library(pals)
-markers.all <- read.csv(file = "markers.all.clusters.csv", row.names = 1)
+markers.all <- read.csv(file = "csvs/markers.all.clusters.csv", row.names = 1)
 markers.all <- subset(markers.all[!(rownames(markers.all) %in% grep("^ENSGAL", x = rownames(markers.all), value = TRUE)),])
 markers.top5 = markers.all %>% group_by(cluster) %>% top_n(5, avg_logFC)
 levels(markers.top5$cluster) == levels(chicken.integrated$celltypes.0.5)
 pdf(file="allClustersDotplot.pdf",
-    width= 6.5, height=2.5, paper="special", bg="transparent",
-    fonts="Helvetica", colormodel = "rgb", pointsize=5)
-DotPlot(chicken.integrated, features = unique(markers.top5$gene), cols = c("gray", "brown"), scale.by = "size", dot.scale = 2.7) + # scale_colour_viridis_c(direction = -1)+
+    width= 6.7, height=2.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5, useDingbats = F)
+DotPlot(chicken.integrated, features = unique(markers.top5$gene), cols = c("lightgray", "brown"), scale.by = "size", dot.scale = 2.0, dot.min = 0.01) + # scale_colour_viridis_c(direction = -1)+
   theme_bw() + 
   theme(plot.background=element_blank(),
         panel.grid = element_line(size = 0.1),

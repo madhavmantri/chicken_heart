@@ -141,13 +141,35 @@ DefaultAssay(myocardial) <- "RNA"
 table(myocardial$scanorama_snn_data_res.0.1)
 Idents(myocardial) <- myocardial$scanorama_snn_data_res.0.1
 myocardial <- RenameIdents(myocardial, "0" = "C1",  "2" = "C2", "1" = "C3")
+myocardial$subcluster <- factor(Idents(myocardial), levels = c("C1", "C2", "C3"))
+
 DefaultAssay(myocardial) <- "RNA"
 markers.myocardial.RNA <- FindAllMarkers(myocardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.01, only.pos = T, do.print = TRUE)
 markers.myocardial.RNA <- subset(markers.myocardial.RNA[!(rownames(markers.myocardial.RNA) %in% grep("^ENSGAL", x = rownames(markers.myocardial.RNA), value = TRUE)),])
-write_csv(markers.myocardial.RNA, path = "myocardial.markers.csv")
+write_csv(markers.myocardial.RNA, path = "csvs/myocardial.markers.csv")
+markers.myocardial.RNA <- read.csv(file = "csvs/myocardial.markers.csv")
 markers.top10 = markers.myocardial.RNA %>% group_by(cluster) %>% top_n(10, avg_logFC)
+pdf(file="myoDotplot.pdf",
+    width= 4.0, height=1.5, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5, useDingbats = F)
+DotPlot(myocardial, features = unique(markers.top10$gene), cols = c("lightgray", "brown"), scale.by = "size", dot.scale = 2.0, dot.min = 0.01) + # scale_colour_viridis_c(direction = -1)+
+  theme_bw() + 
+  theme(plot.background=element_blank(),
+        panel.grid = element_line(size = 0.1),
+        legend.position = "bottom",
+        legend.title = element_text(colour = "black", size = 7, family = "Helvetica"), 
+        legend.text = element_text(colour = "black", size = 6, family = "Helvetica"),
+        legend.spacing = unit(0, "pt"),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        legend.box.margin=margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        axis.title=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y = element_text(colour = "black", size = 6, family = "Helvetica", angle = 0, color = as.vector(alphabet())[1:20]), # element_blank(), # 
+        axis.text.x = element_text(colour = "black", size = 5.0, family = "Helvetica", angle = 45, vjust = 1, hjust = 1),
+        plot.title=element_blank())
+dev.off()
 
-myocardial$subcluster <- factor(Idents(myocardial), levels = c("C1", "C2", "C3"))
 
 pdf(file="MyoClusters.pdf",
     width=1.5, height=1.5, paper="special", bg="transparent",

@@ -132,15 +132,34 @@ load("robjs/endocardial.Robj")
 
 Idents(endocardial) <- endocardial$scanorama_snn_data_res.0.1
 endocardial <- RenameIdents(endocardial, "0" = "C2",  "1" = "C1")
+endocardial$subcluster  <- factor(Idents(endocardial), levels = c("C1", "C2"))
+
 DefaultAssay(endocardial) <- "RNA"
 markers.endocardial.RNA <- FindAllMarkers(endocardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.01, only.pos = T, do.print = TRUE)
 markers.endocardial.RNA <- subset(markers.endocardial.RNA[!(rownames(markers.endocardial.RNA) %in% grep("^ENSGAL", x = rownames(markers.endocardial.RNA), value = TRUE)),])
-write_csv(markers.endocardial.RNA, path = "endocardial.markers.csv")
-# save(markers.endocardial.RNA, file="robjs/markers.endocardial.Robj")
+write_csv(markers.endocardial.RNA, path = "csvs/endocardial.markers.csv")
+markers.endocardial.RNA <- read.csv(file = "csvs/endocardial.markers.csv")
 markers.top10 = markers.endocardial.RNA %>% group_by(cluster) %>% top_n(10, avg_logFC)
-DotPlot(endocardial, assay = "RNA", features = unique(markers.top10$gene))
-
-endocardial$subcluster  <- factor(Idents(endocardial), levels = c("C1", "C2"))
+pdf(file="endoDotplot.pdf",
+    width= 4.0, height=1.2, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5, useDingbats = F)
+DotPlot(endocardial, features = unique(markers.top10$gene), group.by = "subcluster", cols = c("lightgray", "brown"), scale.by = "size", dot.scale = 2.0, dot.min = 0.01) + # scale_colour_viridis_c(direction = -1)+
+  theme_bw() + 
+  theme(plot.background=element_blank(),
+        panel.grid = element_line(size = 0.1),
+        legend.position = "bottom",
+        legend.title = element_text(colour = "black", size = 7, family = "Helvetica"), 
+        legend.text = element_text(colour = "black", size = 6, family = "Helvetica"),
+        legend.spacing = unit(0, "pt"),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        legend.box.margin=margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        axis.title=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y = element_text(colour = "black", size = 6, family = "Helvetica", angle = 0, color = as.vector(alphabet())[1:20]), # element_blank(), # 
+        axis.text.x = element_text(colour = "black", size = 5.0, family = "Helvetica", angle = 45, vjust = 1, hjust = 1),
+        plot.title=element_blank())
+dev.off()
 
 pdf(file="EndoClusters.pdf",
     width=1.5, height=1.5, paper="special", bg="transparent",

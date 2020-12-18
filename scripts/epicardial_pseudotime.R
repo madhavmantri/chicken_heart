@@ -143,13 +143,36 @@ load("robjs/epicardial.Robj")
 Idents(epicardial) <- epicardial$updated_clusters
 epicardial <- RenameIdents(epicardial, "6" = "C1", "4" = "C2", "3" = "C3", "5" = "C5", "0" = "C4")
 epicardial$subcluster <- factor(Idents(epicardial), levels = c("C1", "C2", "C3", "C4", "C5"))
+
 DefaultAssay(epicardial) <- "RNA"
 markers.epicardial.RNA <- FindAllMarkers(epicardial, assay = "RNA", logfc.threshold = 0.5, return.thresh = 0.1, min.pct = 0.5, only.pos = T, do.print = TRUE)
 markers.epicardial.RNA <- subset(markers.epicardial.RNA[!(rownames(markers.epicardial.RNA) %in% grep("^ENSGAL", x = rownames(markers.epicardial.RNA), value = TRUE)),])
-write_csv(markers.epicardial.RNA, path = "epicardial.markers.csv")
+write.csv(markers.epicardial.RNA, file = "csvs/epicardial.markers.csv")
+markers.epicardial.RNA <- read.csv(file = "csvs/epicardial.markers.csv")
 markers.top10 = markers.epicardial.RNA %>% group_by(cluster) %>% top_n(10, avg_logFC)
+pdf(file="epiDotplot.pdf",
+    width= 5.0, height=1.8, paper="special", bg="transparent",
+    fonts="Helvetica", colormodel = "rgb", pointsize=5, useDingbats = F)
+DotPlot(epicardial, features = unique(markers.top10$gene), group.by = "subcluster", cols = c("lightgray", "brown"), scale.by = "size", dot.scale = 2.0, dot.min = 0.01) + # scale_colour_viridis_c(direction = -1)+
+  theme_bw() + 
+  theme(plot.background=element_blank(),
+        panel.grid = element_line(size = 0.1),
+        legend.position = "bottom",
+        legend.title = element_text(colour = "black", size = 7, family = "Helvetica"), 
+        legend.text = element_text(colour = "black", size = 6, family = "Helvetica"),
+        legend.spacing = unit(0, "pt"),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        legend.box.margin=margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        axis.title=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y = element_text(colour = "black", size = 6, family = "Helvetica", angle = 0, color = as.vector(alphabet())[1:20]), # element_blank(), # 
+        axis.text.x = element_text(colour = "black", size = 5.0, family = "Helvetica", angle = 45, vjust = 1, hjust = 1),
+        plot.title=element_blank())
+dev.off()
 
-pdf(file="EpiClusters.pdf",
+
+pdf(file="Epiphate.pdf",
     width=1.5, height=1.5, paper="special", bg="transparent",
     fonts="Helvetica", colormodel = "rgb", pointsize=5)
 DimPlot(epicardial, reduction = "umap_scanorama_data", group.by = "subcluster") + scale_color_manual(values = as.vector(alphabet())[1:20]) + theme_nothing()
