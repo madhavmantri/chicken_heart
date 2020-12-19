@@ -121,7 +121,7 @@ cdata$day <- factor(cdata$day, levels = c("D4", "D7", "D10", "D14"))
 pdf(file="TMSB4X_heatmap.pdf",
     width=4, height=1.5, paper="special", bg="white",
     fonts="Helvetica", colormodel = "rgb", pointsize=5)
-ggplot(data = cdata, mapping = aes(x = celltypes.0.5, y = day, fill = mean)) + geom_bin2d() + theme_classic() + scale_fill_viridis(direction = -1) + 
+ggplot(data = cdata, mapping = aes(x = celltypes.0.5, y = day, fill = mean)) + geom_bin2d() + theme_classic() + scale_fill_viridis(direction = -1, trans = "exp") + 
   labs(x = "Cell types", y = "Stage", fill = "TMSB4X") + 
   theme(plot.background=element_blank(),
         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 

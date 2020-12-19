@@ -153,7 +153,7 @@ pdf(file="myoDotplot.pdf",
     width= 4.0, height=1.5, paper="special", bg="transparent",
     fonts="Helvetica", colormodel = "rgb", pointsize=5, useDingbats = F)
 DotPlot(myocardial, features = unique(markers.top10$gene), cols = c("lightgray", "brown"), scale.by = "size", dot.scale = 2.0, dot.min = 0.01) + # scale_colour_viridis_c(direction = -1)+
-  theme_bw() + 
+  theme_bw() + scale_color_gradient(low = "lightgray", high = "brown", trans = "exp") +
   theme(plot.background=element_blank(),
         panel.grid = element_line(size = 0.1),
         legend.position = "bottom",

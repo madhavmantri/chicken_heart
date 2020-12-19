@@ -137,10 +137,11 @@ DoHeatmap(day10_visium, markers.top10$gene)
 
 
 # Dotplots for anatomical regions' DGE
-pdf(file="D4_dotplot_legend.pdf",
-    width=4.0, height=3.0, paper="special", bg="white",
+pdf(file="D7_dotplot.pdf",
+    width=1.6, height=2.7, paper="special", bg="white",
     fonts="Helvetica", colormodel = "rgb", pointsize=5, useDingbats = F)
-DotPlot(day4_visium, features = unique(markers.top5$gene), cols = c("lightgray", "brown"), scale.by = "size", dot.scale = 1.7, dot.min = 0.25) +   theme_bw() + 
+DotPlot(day7_visium, features = unique(markers.top5$gene), cols = c("lightgray", "brown"), scale.by = "size", dot.scale = 1.7, dot.min = 0.01) + 
+  scale_color_gradient(low = "lightgray", high = "brown", trans = "exp") + theme_bw() + 
   theme(plot.background=element_blank(),
         panel.grid = element_line(size = 0.1),
         legend.position = "bottom",
