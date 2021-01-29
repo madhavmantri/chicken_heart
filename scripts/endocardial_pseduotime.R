@@ -7,6 +7,8 @@ library(fitdistrplus); library(dplyr)
 library(monocle); library(reticulate)
 setwd("/workdir/mm2937/chicken/")
 
+packageVersion("monocle")
+
 samples = c("D4", "D7-LV", "D7-RV", "D10-LV", "D10-RV", "D14-LV", "D14-RV")
 
 seurat3tomonocle <- function(otherCDS, assay, slot, lowerDetectionLimit = 0, import_all = FALSE) {
