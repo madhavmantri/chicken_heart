@@ -140,6 +140,7 @@ dim(GetAssayData(chicken_visium, assay = "predictions_cells"))
 # save(chicken_visium, file="robjs/chicken_visium.4.prediction.1.Robj")
 load("robjs/chicken_visium.4.prediction.1.Robj")
 
+
 #####################  This section uses the cell spot similarity map and defines spot type in 2 differet ways (optional: not used in manuscript) ############################
 
 # Spot type defined by cell type with maxium 
@@ -175,6 +176,3 @@ chicken_visium$celltype_prediction_mode <- prediction.scores$celltype_prediction
 
 # save(chicken_visium, file="robjs/chicken_visium.4.prediction.1.Robj")
 load("robjs/chicken_visium.4.prediction.1.Robj")
-
-
-

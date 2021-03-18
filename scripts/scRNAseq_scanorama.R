@@ -76,7 +76,6 @@ DimPlot(chicken, reduction = "umap_scanorama", group.by = "orig.ident")
 # save(chicken, file="robjs/chicken_normalised_scanorama2.Robj")
 load("robjs/chicken_normalised_scanorama2.Robj")
 
-
 chicken <- chicken.integrated
 # Differnetial marker analysis
 DefaultAssay(object = chicken) <- "RNA"
@@ -114,18 +113,18 @@ dev.off()
 # Use differential marker analysis to label clusters with cell type names
 Idents(chicken) <- chicken$scanorama_snn_res.0.5
 DimPlot(object = chicken, reduction = "umap", label = TRUE)
-chicken <- RenameIdents(chicken, `0` = "Fibroblast cells", `1` = "Cardiomyocytes- 1", `2` = "Immature myocardial cells",
-                                   `3` = "Endocardial cells", `4` = "Cardiomyocytes- 2", `5` = "Valve cells",
+chicken <- RenameIdents(chicken, `0` = "Fibroblast cells", `1` = "Cardiomyocytes-1", `2` = "Immature myocardial cells",
+                                   `3` = "Endocardial cells", `4` = "Cardiomyocytes-2", `5` = "Valve cells",
                                    `6` = "TMSB4X high cells",
-                                   `7` = "Epicardial progenitor cells-1", `8` = "Erythrocytes", `9` = "Vascular endothelial cells", `10` = "Erythrocytes",
-                                   `11` = "Mural cells", `12` = "Epicardial progenitor cells-2", `13` = "MT-enriched cardiomyocytes", `14` = "Macrophages",
+                                   `7` = "Epi-epithelial cells", `8` = "Erythrocytes", `9` = "Vascular endothelial cells", `10` = "Erythrocytes",
+                                   `11` = "Mural cells", `12` = "Epi-mesenchymal cells", `13` = "MT-enriched cardiomyocytes", `14` = "Macrophages",
                                    `15` = "Erythrocytes", `16` = "Dendritic cells")
 chicken$celltypes.0.5 <- Idents(chicken)
 chicken.integrated <- chicken
-
 # save(chicken.integrated, file = "robjs/chicken_normalised_scanorama3.Robj")
 load("robjs/chicken_normalised_scanorama3.Robj")
 
+levels(Idents(chicken.integrated))
 #############################  This section includes PHATE reduction for the entire dataset (optional) ####################
 
 library(phateR)
