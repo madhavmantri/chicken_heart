@@ -51,7 +51,7 @@ load("robjs/all.visiums.4.solo.Robj")
 
 ################################### This section performs clustering on individual datasets and label anatomical regions ##############################################
 
-day14_visium <- FindNeighbors(object = day14_visium, features = SpatiallyVariableFeatures(day4_visium), dims=1:20, force.recalc = TRUE)
+day14_visium <- FindNeighbors(object = day14_visium, dims=1:20, force.recalc = TRUE)
 day14_visium <- FindClusters(object = day14_visium, resolution=0.6)
 SpatialDimPlot(day14_visium, crop = F, pt.size.factor = 1.0) + coord_cartesian()
 day14_visium <- RenameIdents(day14_visium, "0" = "Compact LV and \ninter-ventricular septum", "2" = "Right ventricle", 
