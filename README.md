@@ -6,6 +6,8 @@
 
 **DOI:** https://doi.org/10.1038/s41467-021-21892-z
 
+![summary flowchart](https://github.com/madhavmantri/chicken_heart/blob/master/flowchart.png?raw=true)
+
 **Contents:** This repository contains processed data, scripts and meta data required to analyse spatially resolved RNA-seq data with high-throughput time course scRNA-seq to study the spatiotemporal interactions and regulatory programs that drive embryonic development of the chicken hearts. The sequencing data needed for this analysis have been deposited in NCBI's Gene Expression Omnibus and are accessible through GEO Series accession number [GSE149457](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE149457).
 
 **Processed data:** The data/chicken_heart_spatial_RNAseq_processed directory contains processed data required to analyse the time course spatial RNAseq chicken heart datasets. The dircetory contains three files for each sptial RNA-seq sample.
