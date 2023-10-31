@@ -16,7 +16,7 @@
 3. <sample_name>_scalefactors_json.json: Scaling factors for spots in the original tissue image to the low resolution image. 
 Note: All three files for a spatial RNA-seq sample need to be loaded in the Seurat object for analysis.
 
-**Meta data:** The data directory also contains meta data files with cell-type annotaitons for scRNAseq data, cell-type compositions for sptial RNAseq data, and spatial RNAseq raw data information file with details on slide number, capture areas, and raw tissue images for developing chicken hearts. The high resolution H&E images can be downloaded from Cornell Box: https://cornell.box.com/s/u1itpy7vl9zbmwo8vd60wd6rrpik007m
+**Meta data:** The data directory also contains meta data files with cell-type annotaitons for scRNAseq data, cell-type compositions for sptial RNAseq data, and spatial RNAseq raw data information file with details on slide number, capture areas, and raw tissue images for developing chicken hearts. The high resolution H&E images can be downloaded from Cornell Box: https://cornell.box.com/s/u1itpy7vl9zbmwo8vd60wd6rrpik007m or from figshare: https://figshare.com/collections/Chicken_heart_development/6905956
 
 **Packages:** The analysis scripts written in R programming language use the following packages:
 1. [Seurat-v3.2](https://satijalab.org/seurat/v3.1/spatial_vignette.html)
